@@ -734,13 +734,12 @@ class CommandMoveHalfPageUp extends CommandEditorScroll {
     const smoothScrolling = vscode.workspace.getConfiguration('editor').smoothScrolling;
     let lineOffset = 0;
     let editor = vscode.window.activeTextEditor!;
-    let startColumn = vimState.cursorStartPosition.character;
 
     let firstLine = editor.visibleRanges[0].start.line;
     let currentSelectionLine = vimState.cursorStopPosition.line;
-    lineOffset = currentSelectionLine - firstLine;
-
     let timesToRepeat = vimState.recordedState.count || 1;
+    lineOffset = firstLine === 0 ? 0 : (currentSelectionLine - firstLine);
+
     await vscode.commands.executeCommand('editorScroll', {
       to: this.to,
       by: this.by,
@@ -757,7 +756,7 @@ class CommandMoveHalfPageUp extends CommandEditorScroll {
       newPosition = new Position(editor.selection.active.line, editor.selection.active.character);
     } else {
       let newFirstLine = editor.visibleRanges[0].start.line;
-      newPosition = new Position(newFirstLine + lineOffset, startColumn);
+      newPosition = new Position(newFirstLine + lineOffset, 0);
     }
     vimState.cursorStopPosition = newPosition;
     return vimState;
@@ -925,6 +924,8 @@ class CommandInsertInSearchMode extends BaseCommand {
       // Move cursor to next match
       const nextMatch = searchState.getNextSearchMatchPosition(vimState.cursorStopPosition);
       vimState.cursorStopPosition = nextMatch.pos;
+
+      vimState.globalState.hl = true;
 
       vimState.statusBarCursorCharacterPos = 0;
       Register.putByKey(searchState.searchString, '/', undefined, true);
@@ -1311,8 +1312,6 @@ export class CommandSearchForwards extends BaseCommand {
     // Reset search history index
     vimState.globalState.searchStateIndex = vimState.globalState.searchStatePrevious.length;
 
-    vimState.globalState.hl = true;
-
     return vimState;
   }
 }
@@ -1336,8 +1335,6 @@ export class CommandSearchBackwards extends BaseCommand {
 
     // Reset search history index
     vimState.globalState.searchStateIndex = vimState.globalState.searchStatePrevious.length;
-
-    vimState.globalState.hl = true;
 
     return vimState;
   }
