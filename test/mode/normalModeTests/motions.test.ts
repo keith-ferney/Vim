@@ -215,6 +215,13 @@ suite('Motions in Normal Mode', () => {
   });
 
   newTest({
+    title: "Can handle 'f' with <tab>",
+    start: ['|text\tttext'],
+    keysPressed: 'f<tab>',
+    end: ['text|\tttext'],
+  });
+
+  newTest({
     title: "Can handle 'F'",
     start: ['text tex|t'],
     keysPressed: '$Ft',
@@ -394,6 +401,55 @@ suite('Motions in Normal Mode', () => {
     keysPressed: '/tw<BS><BS><BS>',
     end: ['|one two three'],
     endMode: ModeName.Normal,
+  });
+
+  newTest({
+    title: 'Search offsets: b does nothing',
+    start: ['|hayneedlehay'],
+    keysPressed: '/needle/b\n',
+    end: ['hay|needlehay'],
+  });
+
+  newTest({
+    title: 'Search offsets: b2 goes 2 to the right',
+    start: ['|hayneedlehay'],
+    keysPressed: '/needle/b2\n',
+    end: ['hayne|edlehay'],
+  });
+
+  newTest({
+    title: 'Search offsets: b+3 goes 3 to the right',
+    start: ['|hayneedlehay'],
+    keysPressed: '/needle/b+3\n',
+    end: ['haynee|dlehay'],
+  });
+
+  newTest({
+    title: 'Search offsets: e goes to the end',
+    start: ['|hayneedlehay'],
+    keysPressed: '/needle/e\n',
+    end: ['hayneedl|ehay'],
+  });
+
+  newTest({
+    title: 'Search offsets: character offset goes across line boundaries',
+    start: ['|hayneedlehay', '123'],
+    keysPressed: '/needle/e+5\n',
+    end: ['hayneedlehay', '1|23'],
+  });
+
+  newTest({
+    title: 'Search offsets: 2 goes 2 down',
+    start: ['|hayneedlehay', 'abc', 'def'],
+    keysPressed: '/needle/2\n',
+    end: ['hayneedlehay', 'abc', '|def'],
+  });
+
+  newTest({
+    title: 'Search offsets: -2 goes 2 up',
+    start: ['abc', '|def', 'hayneedlehay', 'abc', 'def'],
+    keysPressed: '/needle/-2\n',
+    end: ['|abc', 'def', 'hayneedlehay', 'abc', 'def'],
   });
 
   newTest({
@@ -668,5 +724,33 @@ suite('Motions in Normal Mode', () => {
     start: ['blah', 'duh', '|dur', 'hur'],
     keysPressed: '<right>',
     end: ['blah', 'duh', 'd|ur', 'hur'],
+  });
+
+  newTest({
+    title: "Can handle 'gk'",
+    start: ['blah', 'duh', '|dur', 'hur'],
+    keysPressed: 'gk',
+    end: ['blah', '|duh', 'dur', 'hur'],
+  });
+
+  newTest({
+    title: "Can handle 'gj'",
+    start: ['blah', 'duh', '|dur', 'hur'],
+    keysPressed: 'gj',
+    end: ['blah', 'duh', 'dur', '|hur'],
+  });
+
+  newTest({
+    title: "Preserves cursor position when handling 'gk'",
+    start: ['blah', 'duh', 'a', 'hu|r '],
+    keysPressed: 'gkgk',
+    end: ['blah', 'du|h', 'a', 'hur '],
+  });
+
+  newTest({
+    title: "Preserves cursor position when handling 'gj'",
+    start: ['blah', 'du|h', 'a', 'hur '],
+    keysPressed: 'gjgj',
+    end: ['blah', 'duh', 'a', 'hu|r '],
   });
 });

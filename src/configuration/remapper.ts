@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import * as vscode from 'vscode';
 import { IKeyRemapping } from './iconfiguration';
 import { Logger } from '../util/logger';
@@ -35,7 +34,7 @@ export class Remappers implements IRemapper {
   }
 
   get isPotentialRemap(): boolean {
-    return _.some(this.remappers, r => r.isPotentialRemap);
+    return this.remappers.some(r => r.isPotentialRemap);
   }
 
   public async sendKey(
@@ -75,7 +74,7 @@ export class Remapper implements IRemapper {
   ): Promise<boolean> {
     this._isPotentialRemap = false;
 
-    if (this._remappedModes.indexOf(vimState.currentMode) === -1) {
+    if (!this._remappedModes.includes(vimState.currentMode)) {
       return false;
     }
 
@@ -94,9 +93,7 @@ export class Remapper implements IRemapper {
 
     if (remapping) {
       this._logger.debug(
-        `${this._configKey}. match found. before=${remapping.before}. after=${
-          remapping.after
-        }. command=${remapping.commands}.`
+        `${this._configKey}. match found. before=${remapping.before}. after=${remapping.after}. command=${remapping.commands}.`
       );
 
       if (!this._recursive) {
@@ -231,10 +228,8 @@ export class Remapper implements IRemapper {
     if (remappings.size === 0) {
       return [0, 0];
     }
-    return [
-      _.minBy(Array.from(remappings.keys()), m => m.length)!.length,
-      _.maxBy(Array.from(remappings.keys()), m => m.length)!.length,
-    ];
+    const keyLengths = Array.from(remappings.keys()).map(k => k.length);
+    return [Math.min(...keyLengths), Math.max(...keyLengths)];
   }
 }
 

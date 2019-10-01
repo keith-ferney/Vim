@@ -19,7 +19,7 @@ const packagejson: {
   contributes: {
     keybindings: VSCodeKeybinding[];
   };
-} = require('../../../package.json');
+} = require('../../package.json');
 
 type OptionValue = number | string | boolean;
 
@@ -100,7 +100,7 @@ class Configuration implements IConfiguration {
     // enable/disable certain key combinations
     this.boundKeyCombinations = [];
     for (let keybinding of packagejson.contributes.keybindings) {
-      if (keybinding.when.indexOf('listFocus') !== -1) {
+      if (keybinding.when.includes('listFocus')) {
         continue;
       }
 
@@ -149,7 +149,7 @@ class Configuration implements IConfiguration {
 
   getConfiguration(section: string = ''): vscode.WorkspaceConfiguration {
     const activeTextEditor = vscode.window.activeTextEditor;
-    const resource = activeTextEditor ? activeTextEditor.document.uri : undefined;
+    const resource = activeTextEditor ? activeTextEditor.document.uri : null;
     return vscode.workspace.getConfiguration(section, resource);
   }
 
@@ -179,8 +179,11 @@ class Configuration implements IConfiguration {
     enable: true,
   };
 
+  replaceWithRegister = false;
+
   sneak = false;
   sneakUseIgnorecaseAndSmartcase = false;
+  sneakReplacesF = false;
 
   surround = true;
 
@@ -300,11 +303,21 @@ class Configuration implements IConfiguration {
 
   digraphs = {};
 
-  substituteGlobalFlag = false;
+  gdefault = false;
+  substituteGlobalFlag = false; // Deprecated in favor of gdefault
+
   whichwrap = '';
   wrapKeys = {};
 
   report = 2;
+  wrapscan = true;
+
+  scroll = 0;
+  getScrollLines(visibleRanges: vscode.Range[]): number {
+    return this.scroll === 0
+      ? Math.ceil((visibleRanges[0].end.line - visibleRanges[0].start.line) / 2)
+      : this.scroll;
+  }
 
   cursorStylePerMode: IModeSpecificStrings<string> = {
     normal: undefined,
